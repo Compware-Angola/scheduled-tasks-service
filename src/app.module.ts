@@ -7,6 +7,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthService } from './module/auth/auth.service';
 import { CronService } from './module/auth/job/cron';
+import { PaymentExpirationCron } from './module/finance/job/payment-expiration.cron';
+import { PaymentsService } from './module/finance/payment.service';
 
 @Module({
   imports: [
@@ -41,6 +43,6 @@ import { CronService } from './module/auth/job/cron';
     }),
   ],
   controllers: [],
-  providers: [AuthService,CronService],
+  providers: [AuthService,CronService,PaymentExpirationCron,PaymentsService],
 })
 export class AppModule {}
