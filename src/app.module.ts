@@ -13,8 +13,18 @@ import { PaymentsService } from './module/finance/payment.service';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    ConfigModule.forRoot({
+       ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: (() => {
+        switch (process.env.NODE_ENV) {
+          case 'production':
+            return '.env.prod';       
+          case 'preprod':
+            return '.env.preprod';    
+          default:
+            return '.env.dev';        
+        }
+      })(),
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
