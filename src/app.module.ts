@@ -9,9 +9,14 @@ import { AuthService } from './module/auth/auth.service';
 import { CronService } from './module/auth/job/cron';
 import { PaymentExpirationCron } from './module/finance/job/payment-expiration.cron';
 import { PaymentsService } from './module/finance/payment.service';
+import { GradeSituationCron } from './module/info-academic/job/update.status.grade';
+import { InfoAcademicService } from './module/info-academic/info-academic.service';
+import { AcademicYear } from './module/entities/academic.year.entity';
+import { AnoLectivoUtil } from './module/util/current-academic-year';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([AcademicYear]),
     ScheduleModule.forRoot(),
        ConfigModule.forRoot({
       isGlobal: true,
@@ -53,6 +58,6 @@ import { PaymentsService } from './module/finance/payment.service';
     }),
   ],
   controllers: [],
-  providers: [AuthService,CronService,PaymentExpirationCron,PaymentsService],
+  providers: [AuthService,CronService,PaymentExpirationCron,PaymentsService,GradeSituationCron,InfoAcademicService,AnoLectivoUtil],
 })
 export class AppModule {}
