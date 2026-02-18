@@ -17,7 +17,12 @@ export enum EstadoAvaliacaoEnum {
 @Injectable()
 export class InfoAcademicService {
     private anoAtualPrincipal: number;
-    private semestreAtual: any
+    private semestreAtual: {
+    anoId: number;
+    semestre: number | null;
+    descricao: string;
+    dataFim:Date| null
+  }
     private readonly logger = new Logger(InfoAcademicService.name);
 
     constructor(private readonly dataSource: DataSource, private readonly anoLectivoUtil: AnoLectivoUtil) { this.initAnoAtual(); }
@@ -755,15 +760,13 @@ WHERE gcu.CODIGO =:gradeCurricularAluno
             const info = await this.dataSource.query(sql, { gradeCurricularAluno } as any);
            observacao =infodata[0]?? "Selecção automática no Portal"
             
-            //ver o semetre atual 
-            const semester = await this.checkSemester(ano_lectivo)
-            console.log(semester);
+         
             
-            if (info[0].CODIGO == 1 && info[0].CODIGO_SEMESTRE == 1 && semester.semestre == 1) {
+            if (info[0].CODIGO == 1 && info[0].CODIGO_SEMESTRE == 1 && this.semestreAtual.semestre == 1) {
                 
                 await this.updateStatus(gradeCurricularAluno, estado, nota,observacao)
 
-            } else if (info[0].CODIGO == 1 && info[0].CODIGO_SEMESTRE == 2 && semester.semestre == 2) {
+            } else if (info[0].CODIGO == 1 && info[0].CODIGO_SEMESTRE == 2 && this.semestreAtual.semestre == 2) {
                 await this.updateStatus(gradeCurricularAluno, estado, nota,observacao)
 
             } else if (info[0].CODIGO == 2 && info[0].CODIGO_SEMESTRE == 2) {
@@ -814,59 +817,6 @@ WHERE gcu.CODIGO =:gradeCurricularAluno
         throw err;
     }
 }
-
-
-    private async checkSemester(anoLectivo: number) {
-
-        const sqlAnoLectivo = `
-    SELECT
-      DESIGNACAO,
-      DATAINICIOPRIMEIROSEMESTRE,
-      DATAFIMPRIMEIROSEMESTRE,
-      DATAINICIOSEGUNDOSEMESTRE,
-      DATAFIMSEGUNDOSEMESTRE,
-      CODIGO
-    FROM FK2_TB_ANO_LECTIVO 
-    WHERE CODIGO = :1
-  `;
-
-        const resultAnoLectivo = await this.dataSource.query(sqlAnoLectivo, [
-            anoLectivo
-        ]);
-
-        if (!resultAnoLectivo.length) {
-            throw new Error('Ano lectivo não encontrado');
-        }
-
-        const ano = resultAnoLectivo[0];
-
-        const hoje = new Date();
-
-        const inicio1 = new Date(ano.DATAINICIOPRIMEIROSEMESTRE);
-        const fim1 = new Date(ano.DATAFIMPRIMEIROSEMESTRE);
-        const inicio2 = new Date(ano.DATAINICIOSEGUNDOSEMESTRE);
-        const fim2 = new Date(ano.DATAFIMSEGUNDOSEMESTRE);
-
-        if (hoje >= inicio1 && hoje <= fim1) {
-            return {
-                semestre: 1,
-                descricao: 'PRIMEIRO_SEMESTRE'
-            };
-        }
-
-        if (hoje >= inicio2 && hoje <= fim2) {
-            return {
-                semestre: 2,
-                descricao: 'SEGUNDO_SEMESTRE'
-            };
-        }
-
-        return {
-            semestre: null,
-            descricao: 'FORA_DO_PERIODO'
-        };
-    }
-
 
 
 }
