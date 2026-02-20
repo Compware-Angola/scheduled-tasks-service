@@ -13,21 +13,23 @@ import { GradeSituationCron } from './module/info-academic/job/update.status.gra
 import { InfoAcademicService } from './module/info-academic/info-academic.service';
 import { AcademicYear } from './module/entities/academic.year.entity';
 import { AnoLectivoUtil } from './module/util/current-academic-year';
+import { MonthlyFeePenaltyService } from './module/finance/payment-monthly-fee.service';
+import { MonthlyFeePenaltyCron } from './module/finance/job/payment-monthly-fee.cron';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([AcademicYear]),
     ScheduleModule.forRoot(),
-       ConfigModule.forRoot({
+    ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: (() => {
         switch (process.env.NODE_ENV) {
           case 'production':
-            return '.env.prod';       
+            return '.env.prod';
           case 'preprod':
-            return '.env.preprod';    
+            return '.env.preprod';
           default:
-            return '.env.dev';        
+            return '.env.dev';
         }
       })(),
     }),
@@ -45,7 +47,7 @@ import { AnoLectivoUtil } from './module/util/current-academic-year';
           password: config.get<string>('DB_PASSWORD'),
           sid: config.get<string>('DB_SID'),
 
-          entities: [`${__dirname}/**/*.entity{.ts,.js}`], 
+          entities: [`${__dirname}/**/*.entity{.ts,.js}`],
           synchronize: false,
           logging: ['query', 'error'],
 
@@ -58,6 +60,9 @@ import { AnoLectivoUtil } from './module/util/current-academic-year';
     }),
   ],
   controllers: [],
-  providers: [AuthService,CronService,PaymentExpirationCron,PaymentsService,GradeSituationCron,InfoAcademicService,AnoLectivoUtil],
+  providers: [AuthService, CronService,
+    PaymentExpirationCron, PaymentsService, 
+    GradeSituationCron, InfoAcademicService,
+   AnoLectivoUtil, MonthlyFeePenaltyService,MonthlyFeePenaltyCron],
 })
-export class AppModule {}
+export class AppModule { }
