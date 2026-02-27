@@ -12,7 +12,7 @@ export class GradeSituationCron {
     private readonly infoAcademicService: InfoAcademicService,
     private readonly anoLectivoUtil: AnoLectivoUtil
   ) {}
-
+ /*
   @Cron(CronExpression.EVERY_DAY_AT_2AM) 
   async expirePendingReferences() {
 
@@ -84,4 +84,5 @@ export class GradeSituationCron {
       this.logger.error('❌ Erro ao processar grades', error);
     }
   }
+    */
 }

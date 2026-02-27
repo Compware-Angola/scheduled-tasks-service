@@ -62,7 +62,7 @@ import { MonthlyFeePenaltyCron } from './module/finance/job/payment-monthly-fee.
   controllers: [],
   providers: [AuthService, CronService,
     PaymentExpirationCron, PaymentsService, 
-    GradeSituationCron, InfoAcademicService,
+     InfoAcademicService,
    AnoLectivoUtil, MonthlyFeePenaltyService,MonthlyFeePenaltyCron],
 })
 export class AppModule { }
