@@ -18,17 +18,17 @@ export enum EstadoAvaliacaoEnum {
 export class InfoAcademicService {
     private anoAtualPrincipal: number;
     private semestreAtual: {
-    anoId: number;
-    semestre: number | null;
-    descricao: string;
-    dataFim:Date| null
-  }
+        anoId: number;
+        semestre: number | null;
+        descricao: string;
+        dataFim: Date | null
+    }
     private readonly logger = new Logger(InfoAcademicService.name);
 
     constructor(private readonly dataSource: DataSource, private readonly anoLectivoUtil: AnoLectivoUtil) { this.initAnoAtual(); }
     private async initAnoAtual() {
         this.anoAtualPrincipal = await this.anoLectivoUtil.getAnoAtualId();
-        this. semestreAtual = await this.anoLectivoUtil.getSemestreAtual();
+        this.semestreAtual = await this.anoLectivoUtil.getSemestreAtual();
 
     }
 
@@ -83,20 +83,20 @@ export class InfoAcademicService {
         return students;
     }
 
-async retornarGradeAvaliadaByAno(
-  anoLectivo: number,
-  semestre: number,
-  page: number = 1,
-  limit: number = 10,
-  obs: string = '%Migração%',
-): Promise<any> {
+    async retornarGradeAvaliadaByAno(
+        anoLectivo: number,
+        semestre: number,
+        page: number = 1,
+        limit: number = 10,
+        obs: string = '%Migração%',
+    ): Promise<any> {
 
-  const offset = (page - 1) * limit;
+        const offset = (page - 1) * limit;
 
-  try {
+        try {
 
-    const grades = await this.dataSource.query(
-      `
+            const grades = await this.dataSource.query(
+                `
       SELECT *
       FROM (
         SELECT 
@@ -149,27 +149,27 @@ async retornarGradeAvaliadaByAno(
       )
       WHERE rn BETWEEN :startRow AND :endRow
       `,
-      {
-        anoLectivo,
-        semestre,
-        obs,
-        startRow: offset + 1,
-        endRow: offset + limit,
-      } as any,
-    );
+                {
+                    anoLectivo,
+                    semestre,
+                    obs,
+                    startRow: offset + 1,
+                    endRow: offset + limit,
+                } as any,
+            );
 
-    return {
-      data: grades,
-      page,
-      limit,
-      totalItems: grades.length
-    };
+            return {
+                data: grades,
+                page,
+                limit,
+                totalItems: grades.length
+            };
 
-  } catch (error) {
-    console.error('Erro ao buscar grades:', error);
-    throw new Error(`Falha ao consultar grades: ${error.message}`);
-  }
-}
+        } catch (error) {
+            console.error('Erro ao buscar grades:', error);
+            throw new Error(`Falha ao consultar grades: ${error.message}`);
+        }
+    }
 
 
     async processarNotas(gradeAluno: any): Promise<any> {
@@ -205,21 +205,21 @@ async retornarGradeAvaliadaByAno(
             const hasOral = await this.temOral(gradeAluno.CODIGO_GRADE_CURRICULAR);
 
             // Busca TODAS as notas em paralelo (grande otimização!)
-            const [
-                nota1f, nota2f, notaEx, notaRec, notaPra,
-                notaOr, notaOrRec, notaMel, notaEE, notaOEE
-            ] = await Promise.all([
-                this.buscarAvaliacao(2, gradeAluno.CODIGO),
-                this.buscarAvaliacao(3, gradeAluno.CODIGO),
-                this.buscarAvaliacao(6, gradeAluno.CODIGO),
-                this.buscarAvaliacao(7, gradeAluno.CODIGO),
-                this.buscarAvaliacao(4, gradeAluno.CODIGO),
-                this.buscarAvaliacao(9, gradeAluno.CODIGO),
-                this.buscarAvaliacao(23, gradeAluno.CODIGO),
-                this.buscarAvaliacao(22, gradeAluno.CODIGO),
-                this.buscarAvaliacao(11, gradeAluno.CODIGO),
-                this.buscarAvaliacao(24, gradeAluno.CODIGO)
-            ]);
+            const avaliacoes = await this.buscarAvaliacoes(gradeAluno.CODIGO);
+
+            const getNota = (tipo: number) =>
+                avaliacoes.find(a => a.TIPO_AVALIACAO === tipo) || null;
+
+            const nota1f = getNota(2);
+            const nota2f = getNota(3);
+            const notaEx = getNota(6);
+            const notaRec = getNota(7);
+            const notaPra = getNota(4);
+            const notaOr = getNota(9);
+            const notaOrRec = getNota(23);
+            const notaMel = getNota(22);
+            const notaEE = getNota(11);
+            const notaOEE = getNota(24);
 
             // Helper local para evitar chamadas repetidas
             const temNota = (nota: any): boolean =>
@@ -724,6 +724,18 @@ async retornarGradeAvaliadaByAno(
 
         return avaliation[0];
     }
+    private async buscarAvaliacoes(
+        gradeAlunoId: number
+    ): Promise<any[]> {
+
+        return await this.dataSource.query(`
+    SELECT avaliacao.*
+    FROM FK2_TB_GRADE_CURRICULAR_ALUNO_AVALIACOES avaliacao
+    WHERE avaliacao.GRADE_CURRICULAR_ALUNO = :1
+      AND avaliacao.TIPO_AVALIACAO IN (2,3,6,7,4,9,23,22,11,24)
+  `, [gradeAlunoId]);
+
+    }
     private async getDataFimPrimeiroSemestre(ano: number): Promise<Date> {
         const first = await this.dataSource.query(`
         SELECT DATAFIMPRIMEIROSEMESTRE  FROM FK2_TB_ANO_LECTIVO
@@ -742,7 +754,7 @@ async retornarGradeAvaliadaByAno(
 
 
 
-    async updateStatusGrade(gradeCurricularAluno: number, estado: number, nota: number, ano_lectivo: number,infodata:string) {
+    async updateStatusGrade(gradeCurricularAluno: number, estado: number, nota: number, ano_lectivo: number, infodata: string) {
         const sql = `
    SELECT dr.CODIGO ,dr.DESIGNACAO ,gc.CODIGO_SEMESTRE  FROM FK2_TB_GRADE_CURRICULAR_ALUNO gcu
 INNER JOIN FK2_TB_GRADE_CURRICULAR gc ON gcu.CODIGO_GRADE_CURRICULAR =gc.CODIGO 
@@ -754,24 +766,24 @@ WHERE gcu.CODIGO =:gradeCurricularAluno
 
 
     `;
- let observacao : any
+        let observacao: any
         try {
             // Verificar a duracao da grade
             const info = await this.dataSource.query(sql, { gradeCurricularAluno } as any);
-           observacao =infodata[0]?? "Selecção automática no Portal"
-            
-         
-            
+            observacao = infodata[0] ?? "Selecção automática no Portal"
+
+
+
             if (info[0].CODIGO == 1 && info[0].CODIGO_SEMESTRE == 1 && this.semestreAtual.semestre == 1) {
-                
-                await this.updateStatus(gradeCurricularAluno, estado, nota,observacao)
+
+                await this.updateStatus(gradeCurricularAluno, estado, nota, observacao)
 
             } else if (info[0].CODIGO == 1 && info[0].CODIGO_SEMESTRE == 2 && this.semestreAtual.semestre == 2) {
-                await this.updateStatus(gradeCurricularAluno, estado, nota,observacao)
+                await this.updateStatus(gradeCurricularAluno, estado, nota, observacao)
 
             } else if (info[0].CODIGO == 2 && info[0].CODIGO_SEMESTRE == 2) {
 
-                await this.updateStatus(gradeCurricularAluno, estado, nota,observacao)
+                await this.updateStatus(gradeCurricularAluno, estado, nota, observacao)
             }
 
 
@@ -786,14 +798,14 @@ WHERE gcu.CODIGO =:gradeCurricularAluno
     }
 
 
-  private async updateStatus(
-    gradeCurricularAluno: number,
-    estado: number,
-    nota: number,
-    info: string
-) {
+    private async updateStatus(
+        gradeCurricularAluno: number,
+        estado: number,
+        nota: number,
+        info: string
+    ) {
 
-    const sql = `
+        const sql = `
         UPDATE FK2_TB_GRADE_CURRICULAR_ALUNO
         SET 
             ESTADO = :estado,
@@ -802,21 +814,21 @@ WHERE gcu.CODIGO =:gradeCurricularAluno
         WHERE CODIGO = :gradeCurricularAluno
     `;
 
-    try {
-        await this.dataSource.query(sql, {
-            estado,
-            nota,
-            info,
-            gradeCurricularAluno
-        } as any);
+        try {
+            await this.dataSource.query(sql, {
+                estado,
+                nota,
+                info,
+                gradeCurricularAluno
+            } as any);
 
-        this.logger.log(`Grade curricular ${gradeCurricularAluno} atualizada com sucesso.`);
+            this.logger.log(`Grade curricular ${gradeCurricularAluno} atualizada com sucesso.`);
 
-    } catch (err) {
-        this.logger.error('Erro ao atualizar status da grade curricular', err.stack);
-        throw err;
+        } catch (err) {
+            this.logger.error('Erro ao atualizar status da grade curricular', err.stack);
+            throw err;
+        }
     }
-}
 
 
 }
