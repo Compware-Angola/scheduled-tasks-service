@@ -15,6 +15,8 @@ import { AcademicYear } from './module/entities/academic.year.entity';
 import { AnoLectivoUtil } from './module/util/current-academic-year';
 import { MonthlyFeePenaltyService } from './module/finance/payment-monthly-fee.service';
 import { MonthlyFeePenaltyCron } from './module/finance/job/payment-monthly-fee.cron';
+import { BullConfigModule } from './module/bull/bull.module';
+import { ScheduleService } from './module/bull/service/schedule_service.service';
 
 @Module({
   imports: [
@@ -58,11 +60,13 @@ import { MonthlyFeePenaltyCron } from './module/finance/job/payment-monthly-fee.
         };
       },
     }),
+   BullConfigModule
   ],
   controllers: [],
   providers: [AuthService, CronService,
     PaymentExpirationCron, PaymentsService, 
      InfoAcademicService,
+    
    AnoLectivoUtil, MonthlyFeePenaltyService,MonthlyFeePenaltyCron],
 })
 export class AppModule { }
