@@ -763,8 +763,6 @@ INNER JOIN FK2_TB_DURACAO dr ON dc.DURACAO  =dr.CODIGO
 
 WHERE gcu.CODIGO =:gradeCurricularAluno
 
-
-
     `;
         let observacao: any
         try {
