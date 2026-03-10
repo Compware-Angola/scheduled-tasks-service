@@ -30,7 +30,7 @@ import { AcademicYear } from '../entities/academic.year.entity';
   providers: [
     ScheduleConsumer,
     ScheduleService,
-    AnoLectivoUtil, // ✅ AnoLectivoUtil será instanciado com o repository
+    AnoLectivoUtil,
   ],
   exports: [AnoLectivoUtil],
 })
