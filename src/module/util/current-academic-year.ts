@@ -121,6 +121,56 @@ export class AnoLectivoUtil {
     };
   }
 
+  /**
+   * 🔥 Retorna os dois semestres configurados do ano letivo atual
+   */
+  async getSemestresConfigurados(): Promise<{
+    anoId: number;
+    primeiroSemestre: { dataInicio: Date; dataFim: Date; descricao: string } | null;
+    segundoSemestre: { dataInicio: Date; dataFim: Date; descricao: string } | null;
+  }> {
+    const anoId = await this.getAnoAtualId();
+
+    const ano = await this.anoLectivoRepo.findOne({
+      where: { Codigo: anoId },
+      select: [
+        'Codigo',
+        'dataInicioPrimeiroSemestre',
+        'dataFimPrimeiroSemestre',
+        'dataInicioSegundoSemestre',
+        'dataFimSegundoSemestre',
+      ],
+    });
+
+    if (!ano) {
+      throw new Error('Ano lectivo não encontrado');
+    }
+
+    const primeiroSemestre =
+      ano.dataInicioPrimeiroSemestre && ano.dataFimPrimeiroSemestre
+        ? {
+            dataInicio: new Date(ano.dataInicioPrimeiroSemestre),
+            dataFim: new Date(ano.dataFimPrimeiroSemestre),
+            descricao: 'PRIMEIRO_SEMESTRE',
+          }
+        : null;
+
+    const segundoSemestre =
+      ano.dataInicioSegundoSemestre && ano.dataFimSegundoSemestre
+        ? {
+            dataInicio: new Date(ano.dataInicioSegundoSemestre),
+            dataFim: new Date(ano.dataFimSegundoSemestre),
+            descricao: 'SEGUNDO_SEMESTRE',
+          }
+        : null;
+
+    return {
+      anoId,
+      primeiroSemestre,
+      segundoSemestre,
+    };
+  }
+
   static clearCache() {
     this.cachedAnoId = null;
     this.lastFetched = 0;
