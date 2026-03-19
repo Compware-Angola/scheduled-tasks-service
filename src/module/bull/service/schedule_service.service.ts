@@ -94,9 +94,7 @@ export class ScheduleService {
       const diaSemanaAula = aula?.FK_DIA_DA_SEMANA; // 0 = domingo, 1 = segunda...
       const datasAgendamento: Date[] = [];
       let current = new Date(dataInicio);
-      console.log(current,dataFim,diaSemanaAula);
-      
-
+   
       while (current <= dataFim) {
         if (current.getDay() === diaSemanaAula) {
           const isIsento = diasIsentos.some(
