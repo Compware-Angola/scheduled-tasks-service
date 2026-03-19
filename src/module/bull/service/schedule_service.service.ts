@@ -25,6 +25,8 @@ export class ScheduleService {
       `,
         { scheduleId } as any,
       );
+      console.log(horarios);
+      
 
       if (horarios.length === 0) {
         throw new NotFoundException(`Horário ${scheduleId} não encontrado ou inativo`);
@@ -73,6 +75,8 @@ export class ScheduleService {
 
       // 5) BUSCAR AS AULAS
       const aula = await this.getAulas(scheduleId);
+      console.log(aula);
+      
       if (!aula) {
         throw new NotFoundException(`Nenhuma aula encontrada para o horário ${scheduleId}`);
       }
@@ -87,9 +91,11 @@ export class ScheduleService {
       );
 
       // 7) GERAR DATAS PARA O DIA DA SEMANA DA AULA
-      const diaSemanaAula = aula.DIA_DA_SEMANA; // 0 = domingo, 1 = segunda...
+      const diaSemanaAula = aula?.FK_DIA_DA_SEMANA; // 0 = domingo, 1 = segunda...
       const datasAgendamento: Date[] = [];
       let current = new Date(dataInicio);
+      console.log(current,dataFim,diaSemanaAula);
+      
 
       while (current <= dataFim) {
         if (current.getDay() === diaSemanaAula) {
@@ -105,11 +111,11 @@ export class ScheduleService {
         current.setDate(current.getDate() + 1);
       }
       const escapeQuotes = (str: string) => (str ? str.replace(/"/g, '\\"') : '');
-      const docenteObj = JSON.parse(aula.REF_DOCENTE);
-      const gradeObj = JSON.parse(horarios.REF_GRADE_CURRICULAR);
+      const docenteObj = JSON?.parse(aula?.REF_DOCENTE);
+      const gradeObj = JSON?.parse(horarios[0]?.REF_GRADE_CURRICULAR);
       const v_json_aula = `{
     "pkAula": ${aula.PK_AULA},
-    "pkGrade": ${horarios.FK_GRADE_CURRICULAR},
+    "pkGrade": ${horarios[0].FK_GRADE_CURRICULAR},
     "pkDocente": ${docenteObj.pkDocente || 0},
     "pkTipoAula": ${aula.FK_TIPO_AULA || 0},
     "nomeDocente": "${escapeQuotes(docenteObj.nomeAbreviado || '')}",
