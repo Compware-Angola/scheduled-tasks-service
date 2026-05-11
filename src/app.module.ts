@@ -9,15 +9,11 @@ import { AuthService } from './module/auth/auth.service';
 import { CronService } from './module/auth/job/cron';
 import { PaymentExpirationCron } from './module/finance/job/payment-expiration.cron';
 import { PaymentsService } from './module/finance/payment.service';
-import { GradeSituationCron } from './module/info-academic/job/update.status.grade';
+
 import { InfoAcademicService } from './module/info-academic/info-academic.service';
 import { AcademicYear } from './module/entities/academic.year.entity';
 import { AnoLectivoUtil } from './module/util/current-academic-year';
-import { MonthlyFeePenaltyService } from './module/finance/payment-monthly-fee.service';
-import { MonthlyFeePenaltyCron } from './module/finance/job/payment-monthly-fee.cron';
 import { BullConfigModule } from './module/bull/bull.module';
-import { ScheduleService } from './module/bull/service/schedule_service.service';
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([AcademicYear]),
@@ -60,13 +56,13 @@ import { ScheduleService } from './module/bull/service/schedule_service.service'
         };
       },
     }),
-   BullConfigModule
+    BullConfigModule
   ],
   controllers: [],
   providers: [AuthService, CronService,
-    PaymentExpirationCron, PaymentsService, 
-     InfoAcademicService,
-    
-   AnoLectivoUtil, MonthlyFeePenaltyService,MonthlyFeePenaltyCron],
+    PaymentExpirationCron, PaymentsService,
+    InfoAcademicService,
+
+    AnoLectivoUtil],
 })
 export class AppModule { }
