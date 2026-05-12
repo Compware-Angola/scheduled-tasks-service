@@ -1,19 +1,17 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
-
 import { ConfigModule, ConfigService } from '@nestjs/config';
-
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthService } from './module/auth/auth.service';
-import { CronService } from './module/auth/job/cron';
+import { AuthCronService } from './module/auth/job/cron';
 import { PaymentExpirationCron } from './module/finance/job/payment-expiration.cron';
 import { PaymentsService } from './module/finance/payment.service';
-
 import { InfoAcademicService } from './module/info-academic/info-academic.service';
 import { AcademicYear } from './module/entities/academic.year.entity';
 import { AnoLectivoUtil } from './module/util/current-academic-year';
 import { BullConfigModule } from './module/bull/bull.module';
+import { MonthlyFeePenaltyCron } from './module/bull/job/payment-monthly-fee.cron';
+import { MonthlyFeePenaltyService } from './module/bull/service/MonthlyFeePenalty.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([AcademicYear]),
@@ -59,10 +57,10 @@ import { BullConfigModule } from './module/bull/bull.module';
     BullConfigModule
   ],
   controllers: [],
-  providers: [AuthService, CronService,
+  providers: [AuthService, AuthCronService,
     PaymentExpirationCron, PaymentsService,
     InfoAcademicService,
-
+    MonthlyFeePenaltyCron, MonthlyFeePenaltyService,
     AnoLectivoUtil],
 })
 export class AppModule { }
