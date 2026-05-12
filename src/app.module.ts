@@ -60,7 +60,7 @@ import { MonthlyFeePenaltyService } from './module/bull/service/MonthlyFeePenalt
   providers: [AuthService, AuthCronService,
     PaymentExpirationCron, PaymentsService,
     InfoAcademicService,
-    MonthlyFeePenaltyCron, MonthlyFeePenaltyService,
+    MonthlyFeePenaltyService,
     AnoLectivoUtil],
 })
 export class AppModule { }

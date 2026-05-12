@@ -6,9 +6,7 @@ import { MonthlyFeePenaltyService } from '../service/MonthlyFeePenalty.service';
 export class MonthlyFeePenaltyCron {
     private readonly logger = new Logger(MonthlyFeePenaltyCron.name);
     constructor(private readonly serive: MonthlyFeePenaltyService) { }
-    //@Cron(CronExpression.EVERY_DAY_AT_3AM)
-    //2 seg para teste
-    @Cron('*/20 * * * * *')
+    @Cron(CronExpression.EVERY_DAY_AT_3AM)
     async applyFixedPenalty() {
         this.logger.log('⏳ Início da verificação');
         try {
