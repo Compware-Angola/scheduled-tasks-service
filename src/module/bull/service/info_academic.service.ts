@@ -22,8 +22,10 @@ export class InfoAcademicService {
             if (!grade) {
                 return;
             }
+            const nota = Math.round(mediaFinal);
+
             const sql = `UPDATE FK2_TB_GRADE_CURRICULAR_ALUNO SET NOTA = :nota, CODIGO_STATUS_GRADE_CURRICULAR = :status WHERE codigo = :codigoGradeAluno`;
-            const result = await this.dataSource.query(sql, { codigoGradeAluno, nota: mediaFinal, status: codigoStatusGrade } as any);
+            const result = await this.dataSource.query(sql, { codigoGradeAluno, nota, status: codigoStatusGrade } as any);
             return result;
 
         } catch (err) {
