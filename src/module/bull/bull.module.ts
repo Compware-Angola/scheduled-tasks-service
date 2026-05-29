@@ -9,6 +9,8 @@ import { AnoLectivoUtil } from '../util/current-academic-year';
 import { AcademicYear } from '../entities/academic.year.entity';
 import { FinalAverageConsumer } from './job/final-average-processor';
 import { InfoAcademicService } from './service/info_academic.service';
+import { BoxProcessor } from './operator_box/job/box_processor';
+import { OperatorBoxService } from './operator_box/service/operator_box_service.service';
 
 @Module({
   imports: [
@@ -29,13 +31,18 @@ import { InfoAcademicService } from './service/info_academic.service';
     BullModule.registerQueue({
       name: 'schedule-events',
     }),
+    BullModule.registerQueue({
+      name: 'operator_box',
+    }),
   ],
   providers: [
     ScheduleConsumer,
     ScheduleService,
     AnoLectivoUtil,
     FinalAverageConsumer,
-    InfoAcademicService
+    InfoAcademicService,
+    BoxProcessor,
+    OperatorBoxService
   ],
   exports: [AnoLectivoUtil],
 })
