@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { HistoryGradeJobService } from '../service/history_grade/history_service.service';
+import { HistoryGradeJobService, type ScheduleOptions } from '../service/history_grade/history_service.service';
 
 @ApiTags('History Grade Jobs — Correção de Dados Antigos')
 @Controller('history-grade/jobs')
@@ -15,7 +15,7 @@ export class HistoryGradeJobController {
     }
 
     @Post('schedule')
-    @ApiOperation({ summary: 'Agenda o job para rodar todos os dias num horário' })
+    @ApiOperation({ summary: 'Agenda o job com cron ou intervalo em ms' })
     @ApiBody({
         schema: {
             type: 'object',
@@ -23,33 +23,35 @@ export class HistoryGradeJobController {
                 cron: {
                     type: 'string',
                     example: '0 6 * * *',
-                    description: 'Expressão cron (default: 06:00 todos os dias)',
+                    description: 'Expressão cron — se passado ignora everyMs',
+                },
+                everyMs: {
+                    type: 'number',
+                    example: 10000,
+                    description: 'Intervalo em milissegundos (default: 10000 = 10s)',
                 },
             },
         },
     })
     @ApiResponse({ status: 201, description: 'Job agendado com sucesso' })
-    async schedule(@Body() body: { cron?: string }) {
-        return this.jobService.scheduleDaily(body.cron);
+    async schedule(@Body() body: ScheduleOptions) {
+        return this.jobService.scheduleJob(body);
     }
 
     @Delete('schedule/stop')
-    @ApiOperation({ summary: 'Para o job agendado' })
+    @ApiOperation({ summary: 'Para o job agendado — passar o mesmo cron ou everyMs usado ao agendar' })
     @ApiBody({
         schema: {
             type: 'object',
             properties: {
-                cron: {
-                    type: 'string',
-                    example: '0 6 * * *',
-                    description: 'Deve ser o mesmo cron usado ao agendar',
-                },
+                cron: { type: 'string', example: '0 6 * * *' },
+                everyMs: { type: 'number', example: 10000 },
             },
         },
     })
     @ApiResponse({ status: 200, description: 'Agendamento removido' })
-    async stopSchedule(@Body() body: { cron?: string }) {
-        return this.jobService.stopScheduled(body.cron);
+    async stopSchedule(@Body() body: ScheduleOptions) {
+        return this.jobService.stopScheduled(body);
     }
 
     @Delete('clear/:status')
@@ -57,9 +59,7 @@ export class HistoryGradeJobController {
     @ApiParam({
         name: 'status',
         enum: ['completed', 'failed', 'wait', 'active', 'delayed'],
-        description: 'Status dos jobs a limpar',
     })
-    @ApiResponse({ status: 200, description: 'Fila limpa com sucesso' })
     async clear(
         @Param('status') status: 'completed' | 'failed' | 'wait' | 'active' | 'delayed',
     ) {
@@ -68,36 +68,19 @@ export class HistoryGradeJobController {
 
     @Delete(':id')
     @ApiOperation({ summary: 'Remove um job específico pelo ID' })
-    @ApiParam({ name: 'id', type: 'string', description: 'ID do job' })
-    @ApiResponse({ status: 200, description: 'Job removido' })
-    @ApiResponse({ status: 404, description: 'Job não encontrado' })
+    @ApiParam({ name: 'id', type: 'string' })
     async remove(@Param('id') id: string) {
         return this.jobService.removeJob(id);
     }
 
     @Get('status')
-    @ApiOperation({ summary: 'Retorna o status geral da fila' })
-    @ApiResponse({
-        status: 200,
-        description: 'Contagens por estado da fila',
-        schema: {
-            example: {
-                waiting: 0,
-                active: 1,
-                completed: 42,
-                failed: 2,
-                delayed: 0,
-                repeatableJobs: [],
-            },
-        },
-    })
+    @ApiOperation({ summary: 'Status geral da fila' })
     async status() {
         return this.jobService.getQueueStatus();
     }
 
     @Get('scheduled')
-    @ApiOperation({ summary: 'Lista todos os jobs agendados (repeatable)' })
-    @ApiResponse({ status: 200, description: 'Lista de jobs agendados' })
+    @ApiOperation({ summary: 'Lista todos os jobs agendados' })
     async listScheduled() {
         return this.jobService.listScheduled();
     }
