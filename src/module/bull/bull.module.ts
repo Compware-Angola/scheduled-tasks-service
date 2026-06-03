@@ -15,6 +15,7 @@ import { FinalAverageConsumer } from './job/grade_processor/grade-processor';
 import { HistoryGradeJobService } from './service/history_grade/history_service.service';
 import { HistoryGradeProcessor } from './job/grade_processor/history_grade.processor';
 import { HistoryGradeJobController } from './controller/history-grade-job.controller';
+import { StudentNoteService } from './service/sudents-notes.service';
 
 @Module({
   imports: [
@@ -46,10 +47,11 @@ import { HistoryGradeJobController } from './controller/history-grade-job.contro
     InfoAcademicService,
     BoxProcessor,
     OperatorBoxService,
+    StudentNoteService,
   ],
   controllers: [
-    HistoryGradeJobController,  // 👈
+    HistoryGradeJobController, // 👈
   ],
   exports: [AnoLectivoUtil, BullModule],
 })
-export class BullConfigModule { }
+export class BullConfigModule {}
