@@ -36,7 +36,7 @@ API de controlo de jobs assíncronos para processamento de dados académicos.
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);  // 👈 acessa em /docs
+  SwaggerModule.setup('docs', app, document);
 
   await app.listen(port);
   console.log(`🚀 API Listening on port ${port}.`);
