@@ -1,60 +1,89 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { DataSource } from "typeorm";
+import { Injectable, Logger } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+import { StudentNoteService } from './sudents-notes.service';
+import { EstadoAvaliacaoEnum } from 'src/module/types/types';
 
 @Injectable()
 export class InfoAcademicService {
-    private readonly logger = new Logger(InfoAcademicService.name);
+  private readonly logger = new Logger(InfoAcademicService.name);
 
-    constructor(private readonly dataSource: DataSource) { }
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly studentsNoteService: StudentNoteService,
+  ) {}
 
-    async processFinalAverage(codigoGradeAluno: number) {
+  async processFinalAverage(codigoGradeAluno: number) {
+    //AQUI VAI PROCESSAR A MEDIA FINAL DO ALUNO
+    //DEPOIS VAI ATUALIZAR A NOTA
+    //DEPOIS VAI ATUALIZAR O STATUS DA NOTA
 
-        //AQUI VAI PROCESSAR A MEDIA FINAL DO ALUNO
-        //DEPOIS VAI ATUALIZAR A NOTA
-        //DEPOIS VAI ATUALIZAR O STATUS DA NOTA
-        const { mediaFinal, codigoStatusGrade } = await this.calcularMediaFinal(codigoGradeAluno);
-        await this.updateGrade(codigoGradeAluno, mediaFinal, codigoStatusGrade);
-
+    const pauta = await this.calcularMediaFinal(codigoGradeAluno);
+    console.log('Analista');
+    console.log('Analista', pauta);
+    if (pauta) {
+      const { mediaFinal, codigoStatusGrade } = pauta;
+      await this.updateGrade(codigoGradeAluno, mediaFinal, codigoStatusGrade);
     }
-    private async updateGrade(codigoGradeAluno: number, mediaFinal: number, codigoStatusGrade: number) {
-        try {
-            const grade = await this.getGrade(codigoGradeAluno);
-            if (!grade) {
-                return;
-            }
-            const nota = Math.round(mediaFinal);
+  }
+  private async updateGrade(
+    codigoGradeAluno: number,
+    mediaFinal: number,
+    codigoStatusGrade: number,
+  ) {
+    try {
+      const grade = await this.getGrade(codigoGradeAluno);
+      if (!grade) {
+        return;
+      }
+      const nota = Math.round(mediaFinal);
 
-            const sql = `UPDATE FK2_TB_GRADE_CURRICULAR_ALUNO SET NOTA = :nota, CODIGO_STATUS_GRADE_CURRICULAR = :status WHERE codigo = :codigoGradeAluno`;
-            const result = await this.dataSource.query(sql, { codigoGradeAluno, nota, status: codigoStatusGrade } as any);
-            return result;
-
-        } catch (err) {
-            this.logger.error('Erro ao atualizar nota', err.stack);
-            throw err;
-        }
+      const sql = `UPDATE FK2_TB_GRADE_CURRICULAR_ALUNO SET NOTA = :nota, CODIGO_STATUS_GRADE_CURRICULAR = :status WHERE codigo = :codigoGradeAluno`;
+      const result = await this.dataSource.query(sql, {
+        codigoGradeAluno,
+        nota,
+        status: codigoStatusGrade,
+      } as any);
+      return result;
+    } catch (err) {
+      this.logger.error('Erro ao atualizar nota', err.stack);
+      throw err;
     }
-    private async getGrade(codigoGradeAluno: number) {
-        try {
-            const sql = `select * FROM FK2_TB_GRADE_CURRICULAR_ALUNO WHERE codigo = :codigoGradeAluno`;
-            const result = await this.dataSource.query(sql, { codigoGradeAluno } as any);
-            if (!result || result.length === 0) {
-                return null;
-            }
-            return result;
-        } catch (err) {
-            this.logger.error('Erro ao obter nota', err.stack);
-            throw err;
-        }
+  }
+  private async getGrade(codigoGradeAluno: number) {
+    try {
+      const sql = `select * FROM FK2_TB_GRADE_CURRICULAR_ALUNO WHERE codigo = :codigoGradeAluno`;
+      const result = await this.dataSource.query(sql, {
+        codigoGradeAluno,
+      } as any);
+      if (!result || result.length === 0) {
+        return null;
+      }
+      return result;
+    } catch (err) {
+      this.logger.error('Erro ao obter nota', err.stack);
+      throw err;
     }
-    private async calcularMediaFinal(codigoGradeAluno: number) {
+  }
+  private async calcularMediaFinal(codigoGradeAluno: number) {
+    const pauta = await this.studentsNoteService.find(codigoGradeAluno);
+    if (!pauta) return null;
+    let codigoStatusGrade = 2;
+    switch (pauta.resultado) {
+      case EstadoAvaliacaoEnum.REPROVADO:
+        codigoStatusGrade = 1;
+        break;
 
-        //1.Obter dados da gradecurricular aluno  
-        //2.Calcular média
-        //3.Calcular status da nota
-        return {
-            mediaFinal: 17.5,
-            codigoStatusGrade: 1
-        }
+      case EstadoAvaliacaoEnum.APROVADO:
+        codigoStatusGrade = 3;
+        break;
 
+      default:
+        codigoStatusGrade = 2;
+        break;
     }
+    return {
+      mediaFinal: pauta.media,
+      codigoStatusGrade: codigoStatusGrade,
+    };
+  }
 }
