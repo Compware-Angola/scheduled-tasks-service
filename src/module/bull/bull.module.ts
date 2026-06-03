@@ -54,4 +54,4 @@ import { StudentNoteService } from './service/sudents-notes.service';
   ],
   exports: [AnoLectivoUtil, BullModule],
 })
-export class BullConfigModule {}
+export class BullConfigModule { }
