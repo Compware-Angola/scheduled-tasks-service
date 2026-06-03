@@ -18,7 +18,15 @@ export class HistoryGradeProcessor extends WorkerHost {
 
         if (job.name === 'processHistoryGrade') {
             // 1. Busca todos os alunos com notas inválidas
-            const alunos = await this.historyGradeJobService.getAllStudentsWithInvalidGrades();
+            const { codigoAnoLectivo } = job.data;
+
+            if (codigoAnoLectivo === undefined) {
+                this.logger.error('Parâmetro codigoAnoLectivo ausente no job');
+                return { success: false, message: 'codigoAnoLectivo ausente' };
+            }
+
+            const alunos = await this.historyGradeJobService.getAllStudentsWithInvalidGrades(codigoAnoLectivo);
+            this.logger.log(`Total de alunos com nota inválida: ${JSON.stringify(alunos)}`);
 
             if (!alunos.length) {
                 this.logger.log('Nenhum aluno com nota inválida encontrado.');
@@ -29,7 +37,7 @@ export class HistoryGradeProcessor extends WorkerHost {
             await this.finalAverageQueue.addBulk(
                 alunos.map(aluno => ({
                     name: 'processFinalAverage',
-                    data: { codigoGradeAluno: aluno.codigo },
+                    data: { codigoGradeAluno: aluno.CODIGO },
                     opts: {
                         attempts: 3,
                         backoff: { type: 'exponential', delay: 2000 },
