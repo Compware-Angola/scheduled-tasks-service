@@ -9,10 +9,12 @@ import { PaymentsService } from './module/finance/payment.service';
 import { AcademicYear } from './module/entities/academic.year.entity';
 import { AnoLectivoUtil } from './module/util/current-academic-year';
 import { BullConfigModule } from './module/bull/bull.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([AcademicYear]),
+
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -54,7 +56,7 @@ import { BullConfigModule } from './module/bull/bull.module';
     }),
     BullConfigModule
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [AuthService, AuthCronService,
     PaymentExpirationCron, PaymentsService,
 

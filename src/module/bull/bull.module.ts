@@ -50,6 +50,6 @@ import { HistoryGradeJobController } from './controller/history-grade-job.contro
   controllers: [
     HistoryGradeJobController,  // 👈
   ],
-  exports: [AnoLectivoUtil],
+  exports: [AnoLectivoUtil, BullModule],
 })
 export class BullConfigModule { }

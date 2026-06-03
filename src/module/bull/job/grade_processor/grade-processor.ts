@@ -16,6 +16,8 @@ export class FinalAverageConsumer extends WorkerHost {
         console.log(`Processing job ${job.id} of type ${job.name}`);
         if (job.name === 'processFinalAverage') {
             const { codigoGradeAluno } = job.data;
+            console.log("ESTOU AQUI");
+
 
 
             await this.infoAcademicService.processFinalAverage(codigoGradeAluno);
