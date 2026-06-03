@@ -51,6 +51,8 @@ export class InfoAcademicService {
         //1.Obter dados da gradecurricular aluno  
         //2.Calcular média
         //3.Calcular status da nota
+        //TODO:A FUNCAO DE PREFERENCIA SER UM UTIL PARA SER REUTILIZADA EM OUTROS LUGARES
+
         return {
             mediaFinal: 17.5,
             codigoStatusGrade: 1

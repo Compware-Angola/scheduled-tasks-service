@@ -1,6 +1,7 @@
 import { Job } from "bullmq";
-import { InfoAcademicService } from "../service/info_academic.service";
+
 import { OnWorkerEvent, Processor, WorkerHost } from "@nestjs/bullmq";
+import { InfoAcademicService } from "../../service/info_academic.service";
 
 
 @Processor('final_average')
