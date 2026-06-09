@@ -47,6 +47,8 @@ export class HistoryGradeProcessor extends WorkerHost {
             const recalculateJobs: any[] = [];
 
             for (const aluno of alunos) {
+                console.log('Aluno', aluno);
+
                 const possuiNota = aluno.NOTA != 0;
 
 
