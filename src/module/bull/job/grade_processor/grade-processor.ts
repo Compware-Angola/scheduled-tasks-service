@@ -20,7 +20,14 @@ export class FinalAverageConsumer extends WorkerHost {
 
 
 
-            await this.infoAcademicService.processFinalAverage(codigoGradeAluno);
+            await this.infoAcademicService.processFinalAverage(codigoGradeAluno, 'Calculado automaticamente:BY_SYSTEM');
+            console.log(`Job ${job.id} completed successfully.`);
+            return { success: true };
+        }
+        if (job.name === 'UpdateStatusGrade') {
+            const { codigoGradeAluno, nota } = job.data;
+            let status = nota >= 10 ? 3 : 1;
+            await this.infoAcademicService.updateGradeStatus(codigoGradeAluno, status, `Atualizado automaticamente:BY_SYSTEM`);
             console.log(`Job ${job.id} completed successfully.`);
             return { success: true };
         }
