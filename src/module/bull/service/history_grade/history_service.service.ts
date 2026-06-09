@@ -98,7 +98,7 @@ export class HistoryGradeJobService {
                     AND C.CODIGO_SEMESTRE = 1
                 )
             )
-            FETCH FIRST 10 ROWS ONLY
+            FETCH FIRST 1000 ROWS ONLY
         `;
         return this.dataSource.query(sql, { codigoAnoLectivo } as any);
     }
