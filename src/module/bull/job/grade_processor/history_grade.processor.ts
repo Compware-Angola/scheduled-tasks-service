@@ -17,42 +17,103 @@ export class HistoryGradeProcessor extends WorkerHost {
         this.logger.log(`Processando job ${job.id} — tipo: ${job.name}`);
 
         if (job.name === 'processHistoryGrade') {
-            // 1. Busca todos os alunos com notas inválidas
             const { codigoAnoLectivo } = job.data;
 
             if (codigoAnoLectivo === undefined) {
                 this.logger.error('Parâmetro codigoAnoLectivo ausente no job');
-                return { success: false, message: 'codigoAnoLectivo ausente' };
+                return {
+                    success: false,
+                    message: 'codigoAnoLectivo ausente',
+                };
             }
 
-            const alunos = await this.historyGradeJobService.getAllStudentsWithInvalidGrades(codigoAnoLectivo);
-            this.logger.log(`Total de alunos com nota inválida: ${JSON.stringify(alunos)}`);
+            const alunos =
+                await this.historyGradeJobService.getAllStudentsWithInvalidGrades(
+                    codigoAnoLectivo,
+                );
+
+            this.logger.log(
+                `Total de alunos com nota inválida: ${alunos.length}`,
+            );
 
             if (!alunos.length) {
-                this.logger.log('Nenhum aluno com nota inválida encontrado.');
+                this.logger.log(
+                    'Nenhum aluno com nota inválida encontrado.',
+                );
                 return { success: true, total: 0 };
             }
 
-            // 2. Dispara um job de média final para cada aluno na fila final_average
-            await this.finalAverageQueue.addBulk(
-                alunos.map(aluno => ({
-                    name: 'processFinalAverage',
-                    data: { codigoGradeAluno: aluno.CODIGO },
-                    opts: {
-                        attempts: 3,
-                        backoff: { type: 'exponential', delay: 2000 },
-                        removeOnComplete: true,
-                        removeOnFail: false,
-                    },
-                }))
+            const processJobs: any[] = [];
+            const recalculateJobs: any[] = [];
+
+            for (const aluno of alunos) {
+                const possuiNota = aluno.NOTA != null;
+
+
+                if (possuiNota) {
+                    recalculateJobs.push({
+                        name: 'UpdateStatusGrade',
+                        data: {
+                            codigoGradeAluno: aluno.CODIGO,
+                            nota: aluno.NOTA,
+                        },
+                        opts: {
+                            attempts: 3,
+                            backoff: {
+                                type: 'exponential',
+                                delay: 2000,
+                            },
+                            removeOnComplete: true,
+                            removeOnFail: false,
+                        },
+                    });
+                } else {
+                    processJobs.push({
+                        name: 'processFinalAverage',
+                        data: {
+                            codigoGradeAluno: aluno.CODIGO,
+                        },
+                        opts: {
+                            attempts: 3,
+                            backoff: {
+                                type: 'exponential',
+                                delay: 2000,
+                            },
+                            removeOnComplete: true,
+                            removeOnFail: false,
+                        },
+                    });
+                }
+            }
+
+            if (processJobs.length) {
+                await this.finalAverageQueue.addBulk(processJobs);
+            }
+
+            if (recalculateJobs.length) {
+                await this.finalAverageQueue.addBulk(recalculateJobs);
+                // ou outra fila:
+                // await this.recalculateQueue.addBulk(recalculateJobs);
+            }
+
+            this.logger.log(
+                `${processJobs.length} alunos para cálculo e ${recalculateJobs.length} para recálculo.`,
             );
 
-            this.logger.log(`${alunos.length} alunos enfileirados para recálculo.`);
-            return { success: true, total: alunos.length };
+            return {
+                success: true,
+                total: alunos.length,
+                processados: processJobs.length,
+                recalculados: recalculateJobs.length,
+            };
         }
 
         this.logger.warn(`Tipo de job desconhecido: ${job.name}`);
-        return { success: false, message: 'Unknown job type' };
+
+        return {
+            success: false,
+            message: 'Unknown job type',
+        };
     }
 
     @OnWorkerEvent('completed')
