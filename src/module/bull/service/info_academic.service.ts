@@ -10,9 +10,9 @@ export class InfoAcademicService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly studentsNoteService: StudentNoteService,
-  ) {}
+  ) { }
 
-  async processFinalAverage(codigoGradeAluno: number) {
+  async processFinalAverage(codigoGradeAluno: number, observacao: string) {
     //AQUI VAI PROCESSAR A MEDIA FINAL DO ALUNO
     //DEPOIS VAI ATUALIZAR A NOTA
     //DEPOIS VAI ATUALIZAR O STATUS DA NOTA
@@ -22,13 +22,14 @@ export class InfoAcademicService {
     console.log('Analista', pauta);
     if (pauta) {
       const { mediaFinal, codigoStatusGrade } = pauta;
-      await this.updateGrade(codigoGradeAluno, mediaFinal, codigoStatusGrade);
+      await this.updateGrade(codigoGradeAluno, mediaFinal, codigoStatusGrade, observacao);
     }
   }
   private async updateGrade(
     codigoGradeAluno: number,
     mediaFinal: number,
     codigoStatusGrade: number,
+    observacao: string
   ) {
     try {
       const grade = await this.getGrade(codigoGradeAluno);
@@ -37,11 +38,31 @@ export class InfoAcademicService {
       }
       const nota = Math.round(mediaFinal);
 
-      const sql = `UPDATE FK2_TB_GRADE_CURRICULAR_ALUNO SET NOTA = :nota, CODIGO_STATUS_GRADE_CURRICULAR = :status WHERE codigo = :codigoGradeAluno`;
+      const sql = `UPDATE FK2_TB_GRADE_CURRICULAR_ALUNO SET NOTA = :nota, CODIGO_STATUS_GRADE_CURRICULAR = :status, OBSERVACAO = :observacao  WHERE codigo = :codigoGradeAluno`;
       const result = await this.dataSource.query(sql, {
         codigoGradeAluno,
         nota,
         status: codigoStatusGrade,
+        observacao
+      } as any);
+      return result;
+    } catch (err) {
+      this.logger.error('Erro ao atualizar nota', err.stack);
+      throw err;
+    }
+  }
+  public async updateGradeStatus(codigoGradeAluno: number, status: number, observacao: string) {
+    try {
+      const grade = await this.getGrade(codigoGradeAluno);
+      if (!grade) {
+        return;
+      }
+
+      const sql = `UPDATE FK2_TB_GRADE_CURRICULAR_ALUNO SET CODIGO_STATUS_GRADE_CURRICULAR = :status  OBSERVACAO = :observacao WHERE codigo = :codigoGradeAluno`;
+      const result = await this.dataSource.query(sql, {
+        codigoGradeAluno,
+        status: status,
+        observacao
       } as any);
       return result;
     } catch (err) {

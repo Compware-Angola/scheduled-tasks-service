@@ -81,7 +81,8 @@ export class HistoryGradeJobService {
                 M.CODIGO_ANO_LECTIVO,
                 M.CODIGO_STATUS_GRADE_CURRICULAR,
                 M.CODIGO_GRADE_CURRICULAR,
-                M.CODIGO_MATRICULA
+                M.CODIGO_MATRICULA,
+                M.NOTA
             FROM FK2_TB_GRADE_CURRICULAR_ALUNO M
             LEFT JOIN FK2_TB_GRADE_CURRICULAR C ON M.CODIGO_GRADE_CURRICULAR = C.CODIGO
             WHERE M.CODIGO_STATUS_GRADE_CURRICULAR = 2
