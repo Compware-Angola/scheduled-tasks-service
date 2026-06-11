@@ -13,6 +13,8 @@ export class BoxProcessor extends WorkerHost {
     async process(job: Job<any, any, string>) {
         console.log(`Processing job ${job.id} of type ${job.name}`);
         if (job.name === 'processOperatorBox') {
+            console.log('ESTOU AQUI NO BOX');
+
             const { codigoUtilizador } = job.data;
             await this.operatorBoxService.processOperatorBox(codigoUtilizador);
         }
