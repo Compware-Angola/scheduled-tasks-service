@@ -27,6 +27,8 @@ export class FinalAverageConsumer extends WorkerHost {
         if (job.name === 'UpdateStatusGrade') {
             const { codigoGradeAluno, nota } = job.data;
             let status = nota >= 10 ? 3 : 1;
+            console.log("ESTOU AQUI NO UPDATE");
+
             await this.infoAcademicService.updateGradeStatus(codigoGradeAluno, status, `Atualizado automaticamente:BY_SYSTEM`);
             console.log(`Job ${job.id} completed successfully.`);
             return { success: true };

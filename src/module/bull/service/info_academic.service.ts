@@ -58,7 +58,7 @@ export class InfoAcademicService {
         return;
       }
 
-      const sql = `UPDATE FK2_TB_GRADE_CURRICULAR_ALUNO SET CODIGO_STATUS_GRADE_CURRICULAR = :status  OBSERVACAO = :observacao WHERE codigo = :codigoGradeAluno`;
+      const sql = `UPDATE FK2_TB_GRADE_CURRICULAR_ALUNO SET CODIGO_STATUS_GRADE_CURRICULAR = :status, OBSERVACAO = :observacao WHERE codigo = :codigoGradeAluno`;
       const result = await this.dataSource.query(sql, {
         codigoGradeAluno,
         status: status,
