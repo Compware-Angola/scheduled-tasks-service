@@ -14,8 +14,11 @@ import { OperatorBoxService } from './operator_box/service/operator_box_service.
 import { FinalAverageConsumer } from './job/grade_processor/grade-processor';
 import { HistoryGradeJobService } from './service/history_grade/history_service.service';
 import { HistoryGradeProcessor } from './job/grade_processor/history_grade.processor';
-import { HistoryGradeJobController } from './controller/history-grade-job.controller';
+import { HistoryGradeJobController } from './controller/job.controller';
 import { StudentNoteService } from './service/sudents-notes.service';
+import { ExameService } from './exame-acesso/service/exame.service';
+import { ProcessorExam } from './exame-acesso/job/processor_exam';
+import { JobService } from './service/job.service';
 
 @Module({
   imports: [
@@ -32,10 +35,11 @@ import { StudentNoteService } from './service/sudents-notes.service';
         },
       }),
     }),
-    BullModule.registerQueue({ name: 'schedule-events' }),
+    BullModule.registerQueue({ name: 'schedule_events' }),
     BullModule.registerQueue({ name: 'operator_box' }),
     BullModule.registerQueue({ name: 'final_average' }),
     BullModule.registerQueue({ name: 'history_grade_processor' }),
+    BullModule.registerQueue({ name: 'results_final_exam' }),
   ],
   providers: [
     ScheduleConsumer,
@@ -48,6 +52,9 @@ import { StudentNoteService } from './service/sudents-notes.service';
     BoxProcessor,
     OperatorBoxService,
     StudentNoteService,
+    ExameService,
+    JobService,
+    ProcessorExam
   ],
   controllers: [
     HistoryGradeJobController, // 👈
