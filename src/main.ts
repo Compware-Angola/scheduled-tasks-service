@@ -9,7 +9,15 @@ async function bootstrap() {
   if (port == null || port == undefined) {
     throw new Error('Porta Não definida!');
   }
+  // ✅ Permitir todas as origens CORS
+  app.enableCors({
+    origin: '*', // permite todas as origens
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
+  });
 
+  // Prefixo global
+  app.setGlobalPrefix('api');
   const config = new DocumentBuilder()
     .setTitle('Job Manager — Correção Académica')
     .setDescription(
@@ -36,23 +44,23 @@ API de controlo de jobs assíncronos para processamento de dados académicos.
 
 \`\`\`
 // Roda a cada 10 segundos (teste)
-POST /history-grade/jobs/schedule
+POST /jobs/schedule
 {}
 
 // Roda a cada 30 segundos
-POST /history-grade/jobs/schedule
+POST /jobs/schedule
 { "everyMs": 30000 }
 
 // Roda todo dia às 06h
-POST /history-grade/jobs/schedule
+POST /jobs/schedule
 { "cron": "0 6 * * *" }
 
 // Para o agendamento de 10s
-DELETE /history-grade/jobs/schedule/stop
+DELETE /jobs/schedule/stop
 {}
 
 // Para o agendamento de cron
-DELETE /history-grade/jobs/schedule/stop
+DELETE /jobs/schedule/stop
 { "cron": "0 6 * * *" }
 \`\`\`
 

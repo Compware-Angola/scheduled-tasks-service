@@ -13,6 +13,7 @@ export class StudentNoteService {
   ) {
     this.initAnoAtual();
   }
+
   private async initAnoAtual() {
     this.anoAtualPrincipal = await this.anoLectivoUtil.getAnoAtualId();
   }
@@ -345,7 +346,7 @@ export class StudentNoteService {
           } else if (nota2f!.NOTA! < nota_min_segunda_freq) {
             media = this.round(
               nota1f!.NOTA! * (peso_primeira_freq / 100) +
-                nota2f!.NOTA! * (peso_segunda_freq / 100),
+              nota2f!.NOTA! * (peso_segunda_freq / 100),
             );
             resultado = EstadoAvaliacaoEnum.RECURSO;
             descricao =
@@ -353,7 +354,7 @@ export class StudentNoteService {
           } else {
             const mediaFreq = this.round(
               nota1f!.NOTA! * (peso_primeira_freq / 100) +
-                nota2f!.NOTA! * (peso_segunda_freq / 100),
+              nota2f!.NOTA! * (peso_segunda_freq / 100),
             );
 
             if (hasPratica) {
@@ -496,7 +497,7 @@ export class StudentNoteService {
 
             media = this.round(
               notaTeorica * ((100 - peso_pratica) / 100) +
-                notaPra!.NOTA! * (peso_pratica / 100),
+              notaPra!.NOTA! * (peso_pratica / 100),
             );
 
             if (media >= 10) {
@@ -744,34 +745,34 @@ export class StudentNoteService {
     return plano > 0;
   }
   private notasPosterioresA1fForamLancadas(
-  nota2f: any,
-  notaEx: any,
-  notaRec: any,
-  notaPra: any,
-  notaOr: any,
-  notaOrRec: any,
-  notaMel: any,
-  notaEE: any,
-  notaOEE: any,
-): boolean {
-  const temNota = (nota: any): boolean =>
-    nota !== null &&
-    nota !== undefined &&
-    nota.NOTA !== null &&
-    nota.NOTA !== undefined;
+    nota2f: any,
+    notaEx: any,
+    notaRec: any,
+    notaPra: any,
+    notaOr: any,
+    notaOrRec: any,
+    notaMel: any,
+    notaEE: any,
+    notaOEE: any,
+  ): boolean {
+    const temNota = (nota: any): boolean =>
+      nota !== null &&
+      nota !== undefined &&
+      nota.NOTA !== null &&
+      nota.NOTA !== undefined;
 
-  return (
-    temNota(nota2f) ||
-    temNota(notaEx) ||
-    temNota(notaRec) ||
-    temNota(notaPra) ||
-    temNota(notaOr) ||
-    temNota(notaOrRec) ||
-    temNota(notaMel) ||
-    temNota(notaEE) ||
-    temNota(notaOEE)
-  );
-}
+    return (
+      temNota(nota2f) ||
+      temNota(notaEx) ||
+      temNota(notaRec) ||
+      temNota(notaPra) ||
+      temNota(notaOr) ||
+      temNota(notaOrRec) ||
+      temNota(notaMel) ||
+      temNota(notaEE) ||
+      temNota(notaOEE)
+    );
+  }
 
   private async temOral(gradeCurricular: any): Promise<boolean> {
     const result = await this.dataSource.query(

@@ -1,11 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HistoryGradeJobService, type ScheduleOptions } from '../service/history_grade/history_service.service';
+import { JobService } from '../service/job.service';
 
-@ApiTags('History Grade Jobs — Correção de Dados Antigos')
-@Controller('history-grade/jobs')
+@ApiTags('Jobs')
+@Controller('jobs')
 export class HistoryGradeJobController {
-    constructor(private readonly jobService: HistoryGradeJobService) { }
+    constructor(private readonly jobService: HistoryGradeJobService, private readonly job: JobService) { }
 
     @Post('start')
     @ApiOperation({ summary: 'Executa o job de correção agora uma vez' })
@@ -65,7 +66,13 @@ export class HistoryGradeJobController {
     ) {
         return this.jobService.clearQueue(status);
     }
-
+    @Get(':queueName/:id/status')
+    @ApiOperation({ summary: 'Retorna o status de um job específico' })
+    @ApiParam({ name: 'queueName', type: 'string', example: 'results_final_exam' })
+    @ApiParam({ name: 'id', type: 'string', example: '123' })
+    async getJobStatus(@Param('queueName') queueName: string, @Param('id') id: string) {
+        return this.job.getJobStatus(queueName, id);
+    }
     @Delete(':id')
     @ApiOperation({ summary: 'Remove um job específico pelo ID' })
     @ApiParam({ name: 'id', type: 'string' })

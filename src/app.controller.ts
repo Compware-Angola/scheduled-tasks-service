@@ -10,7 +10,7 @@ export class AppController {
   constructor(
     @InjectQueue('history_grade_processor') private readonly historyQueue: Queue,
     @InjectQueue('final_average') private readonly finalAverageQueue: Queue,
-    @InjectQueue('schedule-events') private readonly scheduleQueue: Queue,
+    @InjectQueue('schedule_events') private readonly scheduleQueue: Queue,
     @InjectQueue('operator_box') private readonly operatorBoxQueue: Queue,
   ) { }
 

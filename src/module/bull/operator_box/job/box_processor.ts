@@ -25,4 +25,8 @@ export class BoxProcessor extends WorkerHost {
     onCompleted(job: Job) {
         console.log(`Job ${job.id} has completed!`);
     }
+    @OnWorkerEvent('failed')
+    onFailed(job: Job, err: Error) {
+        console.log(`Job ${job.id} has failed with error:`, err);
+    }
 }
