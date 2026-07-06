@@ -106,6 +106,7 @@ export class CashRegistersService {
       SET
         STATUS_ = 'fechado',
         OPERADOR_ID = NULL,
+        BLOQUEIO='N',
         CODE = NULL,
         UPDATED_AT = SYSDATE
       WHERE CODIGO = :1
