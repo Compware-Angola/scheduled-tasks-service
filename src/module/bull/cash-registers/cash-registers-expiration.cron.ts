@@ -11,7 +11,7 @@ export class CashRegistersCron {
         private readonly queue: Queue,
     ) { }
 
-    @Cron(CronExpression.EVERY_10_SECONDS)
+    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
     async handle() {
         await this.queue.add(
             CLOSE_CASH_QUEUE,
