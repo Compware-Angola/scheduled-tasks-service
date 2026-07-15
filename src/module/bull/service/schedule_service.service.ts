@@ -26,7 +26,7 @@ export class ScheduleService {
         { scheduleId } as any,
       );
       console.log(horarios);
-      
+
 
       if (horarios.length === 0) {
         throw new NotFoundException(`Horário ${scheduleId} não encontrado ou inativo`);
@@ -59,6 +59,9 @@ export class ScheduleService {
         return;
       }
 
+      console.log(semestreInfo);
+
+
       // 4) DEFINIR PERÍODO DE AGENDAMENTO
       let dataInicio: Date;
       let dataFim: Date;
@@ -76,7 +79,7 @@ export class ScheduleService {
       // 5) BUSCAR AS AULAS
       const aula = await this.getAulas(scheduleId);
       console.log(aula);
-      
+
       if (!aula) {
         throw new NotFoundException(`Nenhuma aula encontrada para o horário ${scheduleId}`);
       }
@@ -94,7 +97,7 @@ export class ScheduleService {
       const diaSemanaAula = aula?.FK_DIA_DA_SEMANA; // 0 = domingo, 1 = segunda...
       const datasAgendamento: Date[] = [];
       let current = new Date(dataInicio);
-   
+
       while (current <= dataFim) {
         if (current.getDay() === diaSemanaAula) {
           const isIsento = diasIsentos.some(

@@ -16,7 +16,7 @@ export class AnoLectivoUtil {
     private readonly anoLectivoRepo: Repository<AcademicYear>,
   ) { }
 
-  async getAnoAtualId(): Promise<number> {
+  async getAnoAtualId(tipo_cand: number = 1): Promise<number> {
     const now = Date.now();
 
     if (
@@ -28,15 +28,15 @@ export class AnoLectivoUtil {
 
     try {
       const anoAtivo = await this.anoLectivoRepo.findOne({
-        where: { estado: 'Ativo' },
-        select: ['Codigo'],
+        where: { estado: 'Ativo', status: 1, codigoTipoCandidatura: tipo_cand },
+        select: ['codigo'],
         cache: {
           id: 'ano_letivo_ativo',
           milliseconds: 60_000,
         },
       });
 
-      const anoId = anoAtivo?.Codigo ?? this.FALLBACK_ANO_ID;
+      const anoId = anoAtivo?.codigo ?? this.FALLBACK_ANO_ID;
 
       AnoLectivoUtil.cachedAnoId = anoId;
       AnoLectivoUtil.lastFetched = now;
@@ -55,18 +55,18 @@ export class AnoLectivoUtil {
   /**
    * 🔥 Retorna o semestre atual baseado na data de hoje
    */
-  async getSemestreAtual(): Promise<{
+  async getSemestreAtual(tipo_cand: number = 1): Promise<{
     anoId: number;
     semestre: number | null;
     descricao: string;
-    dataFim:Date| null
+    dataFim: Date | null
   }> {
-    const anoId = await this.getAnoAtualId();
+    const anoId = await this.getAnoAtualId(tipo_cand);
 
     const ano = await this.anoLectivoRepo.findOne({
-      where: { Codigo: anoId },
+      where: { codigo: anoId },
       select: [
-        'Codigo',
+        'codigo',
         'dataInicioPrimeiroSemestre',
         'dataFimPrimeiroSemestre',
         'dataInicioSegundoSemestre',
@@ -99,7 +99,7 @@ export class AnoLectivoUtil {
       return {
         anoId,
         semestre: 1,
-        dataFim:fim1,
+        dataFim: fim1,
         descricao: 'PRIMEIRO_SEMESTRE',
       };
     }
@@ -108,7 +108,7 @@ export class AnoLectivoUtil {
       return {
         anoId,
         semestre: 2,
-          dataFim:fim2,
+        dataFim: fim2,
         descricao: 'SEGUNDO_SEMESTRE',
       };
     }
@@ -116,7 +116,7 @@ export class AnoLectivoUtil {
     return {
       anoId,
       semestre: null,
-      dataFim:null,
+      dataFim: null,
       descricao: 'FORA_DO_PERIODO',
     };
   }
@@ -124,17 +124,17 @@ export class AnoLectivoUtil {
   /**
    * 🔥 Retorna os dois semestres configurados do ano letivo atual
    */
-  async getSemestresConfigurados(): Promise<{
+  async getSemestresConfigurados(tipo_cand: number = 1): Promise<{
     anoId: number;
     primeiroSemestre: { dataInicio: Date; dataFim: Date; descricao: string } | null;
     segundoSemestre: { dataInicio: Date; dataFim: Date; descricao: string } | null;
   }> {
-    const anoId = await this.getAnoAtualId();
+    const anoId = await this.getAnoAtualId(tipo_cand);
 
     const ano = await this.anoLectivoRepo.findOne({
-      where: { Codigo: anoId },
+      where: { codigo: anoId },
       select: [
-        'Codigo',
+        'codigo',
         'dataInicioPrimeiroSemestre',
         'dataFimPrimeiroSemestre',
         'dataInicioSegundoSemestre',
@@ -149,19 +149,19 @@ export class AnoLectivoUtil {
     const primeiroSemestre =
       ano.dataInicioPrimeiroSemestre && ano.dataFimPrimeiroSemestre
         ? {
-            dataInicio: new Date(ano.dataInicioPrimeiroSemestre),
-            dataFim: new Date(ano.dataFimPrimeiroSemestre),
-            descricao: 'PRIMEIRO_SEMESTRE',
-          }
+          dataInicio: new Date(ano.dataInicioPrimeiroSemestre),
+          dataFim: new Date(ano.dataFimPrimeiroSemestre),
+          descricao: 'PRIMEIRO_SEMESTRE',
+        }
         : null;
 
     const segundoSemestre =
       ano.dataInicioSegundoSemestre && ano.dataFimSegundoSemestre
         ? {
-            dataInicio: new Date(ano.dataInicioSegundoSemestre),
-            dataFim: new Date(ano.dataFimSegundoSemestre),
-            descricao: 'SEGUNDO_SEMESTRE',
-          }
+          dataInicio: new Date(ano.dataInicioSegundoSemestre),
+          dataFim: new Date(ano.dataFimSegundoSemestre),
+          descricao: 'SEGUNDO_SEMESTRE',
+        }
         : null;
 
     return {

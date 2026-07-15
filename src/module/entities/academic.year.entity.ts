@@ -1,40 +1,99 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryColumn, Column } from 'typeorm';
 
 @Entity({
-  name: 'UMA_TB_ANO_LECTIVO',  
+  name: 'FK2_TB_ANO_LECTIVO',
 })
 export class AcademicYear {
-  @PrimaryGeneratedColumn({ name: 'Codigo', "type": 'int', "unsigned": true })
-  Codigo: number;
+  @PrimaryColumn({
+    name: 'CODIGO',
+    type: 'number',
+  })
+  codigo: number;
 
-  @Column({ name: 'Designacao', "type": 'varchar', "length": 45 })
-  Designacao: string;
+  @Column({
+    name: 'DESIGNACAO',
+    type: 'varchar2',
+    length: 45,
+    nullable: true,
+  })
+  designacao?: string;
 
-  @Column({ name: 'dataInicioPrimeiroSemestre', "type": 'date', "nullable": true })
-  dataInicioPrimeiroSemestre?: string;
+  @Column({
+    name: 'DATAINICIOPRIMEIROSEMESTRE',
+    type: 'date',
+    nullable: true,
+  })
+  dataInicioPrimeiroSemestre?: Date;
 
-  @Column({ name: 'dataFimPrimeiroSemestre', "type": 'date', "nullable": true })
-  dataFimPrimeiroSemestre?: string;
+  @Column({
+    name: 'DATAFIMPRIMEIROSEMESTRE',
+    type: 'date',
+    nullable: true,
+  })
+  dataFimPrimeiroSemestre?: Date;
 
-  @Column({ name: 'dataInicioSegundoSemestre', "type": 'date', "nullable": true })
-  dataInicioSegundoSemestre?: string;
+  @Column({
+    name: 'DATAINICIOSEGUNDOSEMESTRE',
+    type: 'date',
+    nullable: true,
+  })
+  dataInicioSegundoSemestre?: Date;
 
-  @Column({ name: 'dataFimSegundoSemestre', "type": 'date', "nullable": true })
-  dataFimSegundoSemestre?: string;
+  @Column({
+    name: 'DATAFIMSEGUNDOSEMESTRE',
+    type: 'date',
+    nullable: true,
+  })
+  dataFimSegundoSemestre?: Date;
 
-  @Column({ name: 'estado', "type": 'varchar', "length": 45, "default": 'Desativo' })
-  estado: string;
+  @Column({
+    name: 'ESTADO',
+    type: 'varchar2',
+    length: 45,
+    nullable: true,
+  })
+  estado?: string;
 
-  @Column({ name: 'data_ultima_atualizacao', "type": 'varchar', "length": 45 })
-  data_ultima_atualizacao: string;
+  @Column({
+    name: 'DATA_ULTIMA_ATUALIZACAO',
+    type: 'varchar2',
+    length: 45,
+    nullable: true,
+  })
+  dataUltimaAtualizacao?: string;
 
+  @Column({
+    name: 'UTILIZADOR',
+    type: 'number',
+    nullable: true,
+  })
+  utilizador?: number;
 
-  @Column({ name: 'status', "type": 'int', "default": 0 })
-  status: number;
+  @Column({
+    name: 'STATUS_',
+    type: 'number',
+    nullable: true,
+  })
+  status?: number;
 
-  @Column({ name: 'ordem', "type": 'int', "default": 1 })
-  ordem: number;
+  @Column({
+    name: 'ORDEM',
+    type: 'number',
+    nullable: true,
+  })
+  ordem?: number;
 
-  @Column({ name: 'epoca_exame_acesso', "type": 'int', "default": 0 })
-  epoca_exame_acesso: number;
+  @Column({
+    name: 'EPOCA_EXAME_ACESSO',
+    type: 'number',
+    nullable: true,
+  })
+  epocaExameAcesso?: number;
+
+  @Column({
+    name: 'CODIGO_TIPO_CANDIDATURA',
+    type: 'number',
+    nullable: true,
+  })
+  codigoTipoCandidatura?: number;
 }
