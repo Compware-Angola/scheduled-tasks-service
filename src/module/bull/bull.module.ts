@@ -2,12 +2,10 @@ import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
 import { ScheduleConsumer } from './job/schedule-processor';
 import { ScheduleService } from './service/schedule_service.service';
 import { AnoLectivoUtil } from '../util/current-academic-year';
 import { AcademicYear } from '../entities/academic.year.entity';
-
 import { InfoAcademicService } from './service/info_academic.service';
 import { BoxProcessor } from './operator_box/job/box_processor';
 import { OperatorBoxService } from './operator_box/service/operator_box_service.service';
@@ -19,6 +17,10 @@ import { StudentNoteService } from './service/sudents-notes.service';
 import { ExameService } from './exame-acesso/service/exame.service';
 import { ProcessorExam } from './exame-acesso/job/processor_exam';
 import { JobService } from './service/job.service';
+import { CashRegistersService } from './cash-registers/cash-registers.service';
+import { CashRegistersCron } from './cash-registers/cash-registers-expiration.cron';
+import { CashRegistersProcessor } from './cash-registers/cash-registers.processor';
+import { CLOSE_CASH_QUEUE } from './cash-registers/queue.constants';
 
 @Module({
   imports: [
@@ -40,6 +42,7 @@ import { JobService } from './service/job.service';
     BullModule.registerQueue({ name: 'final_average' }),
     BullModule.registerQueue({ name: 'history_grade_processor' }),
     BullModule.registerQueue({ name: 'results_final_exam' }),
+    BullModule.registerQueue({ name: CLOSE_CASH_QUEUE }),
   ],
   providers: [
     ScheduleConsumer,
@@ -54,10 +57,13 @@ import { JobService } from './service/job.service';
     StudentNoteService,
     ExameService,
     JobService,
-    ProcessorExam
+    ProcessorExam,
+    CashRegistersService,
+    CashRegistersCron,
+    CashRegistersProcessor
   ],
   controllers: [
-    HistoryGradeJobController, // 👈
+    HistoryGradeJobController,
   ],
   exports: [AnoLectivoUtil, BullModule],
 })
