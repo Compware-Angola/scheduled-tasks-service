@@ -7,9 +7,6 @@ import { AcademicYear } from '../entities/academic.year.entity';
 @Injectable()
 export class AnoLectivoUtil {
   private readonly FALLBACK_ANO_ID = 23;
-  private static cachedAnoId: number | null = null;
-  private static lastFetched = 0;
-  private static readonly CACHE_TTL = 10 * 60 * 1000;
 
   constructor(
     @InjectRepository(AcademicYear)
@@ -17,49 +14,35 @@ export class AnoLectivoUtil {
   ) { }
 
   async getAnoAtualId(tipo_cand: number = 1): Promise<number> {
-    const now = Date.now();
-
-    if (
-      AnoLectivoUtil.cachedAnoId !== null &&
-      now - AnoLectivoUtil.lastFetched < AnoLectivoUtil.CACHE_TTL
-    ) {
-      return AnoLectivoUtil.cachedAnoId;
-    }
-
     try {
       const anoAtivo = await this.anoLectivoRepo.findOne({
-        where: { estado: 'Ativo', status: 1, codigoTipoCandidatura: tipo_cand },
-        select: ['codigo'],
-        cache: {
-          id: 'ano_letivo_ativo',
-          milliseconds: 60_000,
+        where: {
+          estado: 'Ativo',
+          status: 1,
+          codigoTipoCandidatura: tipo_cand,
         },
+        select: ['codigo'],
       });
 
-      const anoId = anoAtivo?.codigo ?? this.FALLBACK_ANO_ID;
-
-      AnoLectivoUtil.cachedAnoId = anoId;
-      AnoLectivoUtil.lastFetched = now;
-
-      return anoId;
+      return anoAtivo?.codigo ?? this.FALLBACK_ANO_ID;
     } catch (error) {
       console.warn(
         'Erro ao buscar ano letivo ativo:',
         error instanceof Error ? error.message : error,
       );
 
-      return AnoLectivoUtil.cachedAnoId ?? this.FALLBACK_ANO_ID;
+      return this.FALLBACK_ANO_ID;
     }
   }
 
   /**
-   * 🔥 Retorna o semestre atual baseado na data de hoje
+   * Retorna o semestre atual baseado na data de hoje
    */
   async getSemestreAtual(tipo_cand: number = 1): Promise<{
     anoId: number;
     semestre: number | null;
     descricao: string;
-    dataFim: Date | null
+    dataFim: Date | null;
   }> {
     const anoId = await this.getAnoAtualId(tipo_cand);
 
@@ -91,9 +74,9 @@ export class AnoLectivoUtil {
 
     const inicio1 = new Date(ano.dataInicioPrimeiroSemestre);
     const fim1 = new Date(ano.dataFimPrimeiroSemestre);
+
     const inicio2 = new Date(ano.dataInicioSegundoSemestre);
     const fim2 = new Date(ano.dataFimSegundoSemestre);
-
 
     if (hoje >= inicio1 && hoje <= fim1) {
       return {
@@ -122,12 +105,20 @@ export class AnoLectivoUtil {
   }
 
   /**
-   * 🔥 Retorna os dois semestres configurados do ano letivo atual
+   * Retorna os dois semestres configurados do ano letivo atual
    */
   async getSemestresConfigurados(tipo_cand: number = 1): Promise<{
     anoId: number;
-    primeiroSemestre: { dataInicio: Date; dataFim: Date; descricao: string } | null;
-    segundoSemestre: { dataInicio: Date; dataFim: Date; descricao: string } | null;
+    primeiroSemestre: {
+      dataInicio: Date;
+      dataFim: Date;
+      descricao: string;
+    } | null;
+    segundoSemestre: {
+      dataInicio: Date;
+      dataFim: Date;
+      descricao: string;
+    } | null;
   }> {
     const anoId = await this.getAnoAtualId(tipo_cand);
 
@@ -169,10 +160,5 @@ export class AnoLectivoUtil {
       primeiroSemestre,
       segundoSemestre,
     };
-  }
-
-  static clearCache() {
-    this.cachedAnoId = null;
-    this.lastFetched = 0;
   }
 }
