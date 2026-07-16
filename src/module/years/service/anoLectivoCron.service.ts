@@ -32,7 +32,6 @@ export class AcademicYearCronService {
             const candidato = await repo
                 .createQueryBuilder('ano')
                 .where('ano.dataInicioPrimeiroSemestre <= :hoje', { hoje })
-                // .andWhere('ano.codigo_tipo_candidatura = :codigoTipoCandidatura', { codigoTipoCandidatura: 1 })
                 .andWhere('ano.faseAnoLectivo = :faseAnoLectivo', { faseAnoLectivo: EstadoAnoLectivo.USAVEL })
                 .orderBy('ano.dataInicioPrimeiroSemestre', 'DESC')
                 .getOne();
@@ -55,6 +54,7 @@ export class AcademicYearCronService {
                     utilizador: SYSTEM_USER_ID,
                 })
                 .where('status = :activo', { activo: 1 })
+                .andWhere('codigo_tipo_candidatura = :codigoTipoCandidatura', { codigoTipoCandidatura: candidato.codigoTipoCandidatura })
                 .execute();
 
             // activa o novo
