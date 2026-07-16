@@ -10,6 +10,8 @@ import { AcademicYear } from './module/entities/academic.year.entity';
 import { AnoLectivoUtil } from './module/util/current-academic-year';
 import { BullConfigModule } from './module/bull/bull.module';
 import { AppController } from './app.controller';
+import { AcademicYearCron } from './module/years/cron/cron';
+import { AcademicYearCronService } from './module/years/service/anoLectivoCron.service';
 
 @Module({
   imports: [
@@ -60,6 +62,7 @@ import { AppController } from './app.controller';
   providers: [AuthService, AuthCronService,
     PaymentExpirationCron, PaymentsService,
 
+    AcademicYearCron, AcademicYearCronService,
     AnoLectivoUtil],
 })
 export class AppModule { }
