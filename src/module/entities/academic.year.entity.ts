@@ -96,4 +96,13 @@ export class AcademicYear {
     nullable: true,
   })
   codigoTipoCandidatura?: number;
+
+
+  @Column({
+    name: 'FASE_ANOLECTIVO',
+    type: 'varchar2',
+    length: 45,
+    nullable: true,
+  })
+  faseAnoLectivo?: string;
 }
