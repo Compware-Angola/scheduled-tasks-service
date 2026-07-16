@@ -107,7 +107,7 @@ export class AnoLectivoUtil {
   /**
    * Retorna os dois semestres configurados do ano letivo atual
    */
-  async getSemestresConfigurados(tipo_cand: number = 1): Promise<{
+  async getSemestresConfigurados(tipo_cand: number = 1, anoLectivo?: number): Promise<{
     anoId: number;
     primeiroSemestre: {
       dataInicio: Date;
@@ -123,7 +123,7 @@ export class AnoLectivoUtil {
     const anoId = await this.getAnoAtualId(tipo_cand);
 
     const ano = await this.anoLectivoRepo.findOne({
-      where: { codigo: anoId },
+      where: { codigo: anoLectivo ?? anoId },
       select: [
         'codigo',
         'dataInicioPrimeiroSemestre',

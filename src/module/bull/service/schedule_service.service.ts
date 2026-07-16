@@ -33,14 +33,16 @@ export class ScheduleService {
       }
 
       const gradeCurricular = horarios[0].FK_GRADE_CURRICULAR;
+      const anoLectivo = horarios[0].FK_ANO_LECTIVO;
 
       // 2) SABER SE A GRADE CURRICULAR É ANUAL OU SEMESTRAL
       const gradeInfo = await this.dataSource.query(
         `
-      SELECT dr.CODIGO, dr.DESIGNACAO, gc.CODIGO_SEMESTRE
+      SELECT dr.CODIGO, dr.DESIGNACAO, gc.CODIGO_SEMESTRE, cs.TIPO_CANDIDATURA
       FROM FK2_TB_GRADE_CURRICULAR gc
       INNER JOIN FK2_TB_DISCIPLINAS dc ON gc.CODIGO_DISCIPLINA = dc.CODIGO
       INNER JOIN FK2_TB_DURACAO dr ON dc.DURACAO = dr.CODIGO
+      INNER JOIN FK2_TB_CURSOS cs ON gc.CODIGO_CURSO = cs.CODIGO
       WHERE gc.CODIGO = :gradeCurricular
       `,
         { gradeCurricular } as any,
@@ -51,9 +53,10 @@ export class ScheduleService {
       }
 
       const isSemestral = gradeInfo[0].CODIGO === 1;
+      const tipoCandidatura = gradeInfo[0].TIPO_CANDIDATURA;
 
       // 3) PEGAR O SEMESTRE CONFIGURADO
-      const semestreInfo = await this.anoLectivoUtil.getSemestresConfigurados();
+      const semestreInfo = await this.anoLectivoUtil.getSemestresConfigurados(tipoCandidatura, anoLectivo);
       if (!semestreInfo.primeiroSemestre || !semestreInfo.segundoSemestre) {
         this.logger.warn('⚠ Semestre não definido ou data de fim inexistente. Processo interrompido.');
         return;
