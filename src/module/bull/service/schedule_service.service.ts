@@ -26,21 +26,23 @@ export class ScheduleService {
         { scheduleId } as any,
       );
       console.log(horarios);
-      
+
 
       if (horarios.length === 0) {
         throw new NotFoundException(`Horário ${scheduleId} não encontrado ou inativo`);
       }
 
       const gradeCurricular = horarios[0].FK_GRADE_CURRICULAR;
+      const anoLectivo = horarios[0].FK_ANO_LECTIVO;
 
       // 2) SABER SE A GRADE CURRICULAR É ANUAL OU SEMESTRAL
       const gradeInfo = await this.dataSource.query(
         `
-      SELECT dr.CODIGO, dr.DESIGNACAO, gc.CODIGO_SEMESTRE
+      SELECT dr.CODIGO, dr.DESIGNACAO, gc.CODIGO_SEMESTRE, cs.TIPO_CANDIDATURA
       FROM FK2_TB_GRADE_CURRICULAR gc
       INNER JOIN FK2_TB_DISCIPLINAS dc ON gc.CODIGO_DISCIPLINA = dc.CODIGO
       INNER JOIN FK2_TB_DURACAO dr ON dc.DURACAO = dr.CODIGO
+      INNER JOIN FK2_TB_CURSOS cs ON gc.CODIGO_CURSO = cs.CODIGO
       WHERE gc.CODIGO = :gradeCurricular
       `,
         { gradeCurricular } as any,
@@ -51,13 +53,17 @@ export class ScheduleService {
       }
 
       const isSemestral = gradeInfo[0].CODIGO === 1;
+      const tipoCandidatura = gradeInfo[0].TIPO_CANDIDATURA;
 
       // 3) PEGAR O SEMESTRE CONFIGURADO
-      const semestreInfo = await this.anoLectivoUtil.getSemestresConfigurados();
+      const semestreInfo = await this.anoLectivoUtil.getSemestresConfigurados(tipoCandidatura, anoLectivo);
       if (!semestreInfo.primeiroSemestre || !semestreInfo.segundoSemestre) {
         this.logger.warn('⚠ Semestre não definido ou data de fim inexistente. Processo interrompido.');
         return;
       }
+
+      console.log(semestreInfo);
+
 
       // 4) DEFINIR PERÍODO DE AGENDAMENTO
       let dataInicio: Date;
@@ -76,7 +82,7 @@ export class ScheduleService {
       // 5) BUSCAR AS AULAS
       const aula = await this.getAulas(scheduleId);
       console.log(aula);
-      
+
       if (!aula) {
         throw new NotFoundException(`Nenhuma aula encontrada para o horário ${scheduleId}`);
       }
@@ -94,7 +100,7 @@ export class ScheduleService {
       const diaSemanaAula = aula?.FK_DIA_DA_SEMANA; // 0 = domingo, 1 = segunda...
       const datasAgendamento: Date[] = [];
       let current = new Date(dataInicio);
-   
+
       while (current <= dataFim) {
         if (current.getDay() === diaSemanaAula) {
           const isIsento = diasIsentos.some(
