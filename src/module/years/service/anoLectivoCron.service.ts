@@ -78,7 +78,6 @@ export class AcademicYearCronService {
     }
 
     private formatarData(data: Date): string {
-        // ajusta ao formato que já usam no resto do sistema para DATA_ULTIMA_ATUALIZACAO
         return data.toISOString();
     }
 }
