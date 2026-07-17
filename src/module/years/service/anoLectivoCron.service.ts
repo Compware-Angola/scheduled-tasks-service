@@ -51,6 +51,7 @@ export class AcademicYearCronService {
                     status: 0,
                     estado: EstadoAnoLectivo.DESACTIVADO,
                     dataUltimaAtualizacao: agoraFormatado,
+                    faseAnoLectivo: EstadoAnoLectivo.ENCERRADO,
                     utilizador: SYSTEM_USER_ID,
                 })
                 .where('status = :activo', { activo: 1 })
@@ -66,7 +67,7 @@ export class AcademicYearCronService {
                     estado: EstadoAnoLectivo.ACTIVO,
                     dataUltimaAtualizacao: agoraFormatado,
                     utilizador: SYSTEM_USER_ID,
-                    faseAnoLectivo: EstadoAnoLectivo.ENCERRADO,
+                    faseAnoLectivo: EstadoAnoLectivo.ACTIVO,
                 })
                 .where('codigo = :id', { id: candidato.codigo })
                 .execute();
