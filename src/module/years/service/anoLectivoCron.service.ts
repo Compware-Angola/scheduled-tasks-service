@@ -9,8 +9,11 @@ export enum EstadoAnoLectivo {
     RASCUNHO = 'RASCUNHO',         // nada é permitido ainda
     CONFIGURAVEL = 'CONFIGURAVEL', // pode criar horários, NÃO pode matricular
     USAVEL = 'USAVEL',             // pode criar horários E matricular estudantes
-    ENCERRADO = 'ENCERRADO',       // fechado, só leitura
+    ENCERRADO = 'ENCERRADO',
+    // fechado, só leitura
     ACTIVO = 'Activo',
+
+    ACTIVO_UPPERCASE = 'ACTIVO',
     DESACTIVADO = 'Desactivado'
 }
 @Injectable()
@@ -51,6 +54,7 @@ export class AcademicYearCronService {
                     status: 0,
                     estado: EstadoAnoLectivo.DESACTIVADO,
                     dataUltimaAtualizacao: agoraFormatado,
+                    faseAnoLectivo: EstadoAnoLectivo.ENCERRADO,
                     utilizador: SYSTEM_USER_ID,
                 })
                 .where('status = :activo', { activo: 1 })
@@ -66,7 +70,7 @@ export class AcademicYearCronService {
                     estado: EstadoAnoLectivo.ACTIVO,
                     dataUltimaAtualizacao: agoraFormatado,
                     utilizador: SYSTEM_USER_ID,
-                    faseAnoLectivo: EstadoAnoLectivo.ENCERRADO,
+                    faseAnoLectivo: EstadoAnoLectivo.ACTIVO_UPPERCASE,
                 })
                 .where('codigo = :id', { id: candidato.codigo })
                 .execute();
